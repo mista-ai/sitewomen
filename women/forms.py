@@ -20,7 +20,8 @@ class RussianValidator:
 
 class AddPostForm(forms.ModelForm):
     cat = forms.ModelChoiceField(queryset=Category.objects.all(), label='Категория', empty_label='Категория не выбрана')
-    husband = forms.ModelChoiceField(queryset=Husband.objects.all(), required=False, label='Муж', empty_label='Не замужем')
+    husband = forms.ModelChoiceField(queryset=Husband.objects.all(), required=False, label='Муж',
+                                     empty_label='Не замужем')
 
     class Meta:
         model = Women
@@ -38,3 +39,7 @@ class AddPostForm(forms.ModelForm):
         if len(title) > 50:
             raise forms.ValidationError('Длина превышает 50 символов')
         return title
+
+
+class UploadFileForm(forms.Form):
+    file = forms.ImageField(label="Файл")

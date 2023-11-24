@@ -1,11 +1,8 @@
-from django.http import HttpResponse, HttpResponseNotFound, Http404, HttpResponseRedirect, HttpResponsePermanentRedirect
+from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse
-from django.template.loader import render_to_string
-from django.template.defaultfilters import slugify
-
-from .forms import AddPostForm
+from .forms import AddPostForm, UploadFileForm
 from .models import Women, Category, TagPost
+from datetime import datetime
 
 menu = [
     {'title': "О сайте", 'url_name': 'about'},
@@ -27,8 +24,22 @@ def index(request):
     return render(request, 'women/index.html', context=data)
 
 
+def handle_uploaded_file(f):
+    f_name, f_format = f.name.split('.')
+    with open(f"../uploads/{f_name}-{datetime.now().strftime('%Y-%m-%d %H-%M-%S')}.{f_format}", "wb+") as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+
+
 def about(request):
-    return render(request, 'women/about.html', {'title': 'О сайте', 'menu': menu})
+    if request.method == 'POST':
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            handle_uploaded_file(request.FILES['file'])
+        # handle_uploaded_file(request.FILES['file_upload'])
+    else:
+        form = UploadFileForm()
+    return render(request, 'women/about.html', {'title': 'О сайте', 'menu': menu, 'form': form})
 
 
 def show_post(request, post_slug):
